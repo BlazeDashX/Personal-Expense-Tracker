@@ -1,29 +1,24 @@
-# Personal Expense Tracker
+// file: README.md
+# Personal Expense Tracker 📈
 
-A production-ready personal finance management application built with Next.js, Neon PostgreSQL, Drizzle ORM, and Tailwind CSS.
+A production-ready, highly secure personal finance management application built for a single administrator. It features lightning-fast data entry, calendar-based heatmaps, cash flow tracking, and dynamic visual analytics.
 
-## Features
+## 🚀 Technology Stack
+- **Framework:** Next.js 15 (App Router, React Server Components)
+- **Database:** Neon PostgreSQL (Serverless)
+- **ORM:** Drizzle ORM
+- **Authentication:** Auth.js v5 (Credentials Provider with bcryptjs)
+- **Styling:** Tailwind CSS, shadcn/ui, next-themes (Dark Mode)
+- **Forms & Validation:** React Hook Form, Zod
+- **Tables & Charts:** TanStack Table, Recharts
+- **Data Export:** xlsx (CSV/Excel)
 
-- Complete Expense & Income Tracking
-- Calendar-based Visualizations
-- Loan & Borrowing Management
-- Daily Meal Tracking
-- Production-ready Analytics (Recharts)
-- Dark Mode Support
-- Secure Authentication
+---
 
-## Prerequisites
+## 🏗️ Architecture
+This project uses a **Feature-Based Architecture** to ensure maintainability:
+- `/app`: Next.js routing, layouts, and page components.
+- `/features`: Domain-specific logic (`auth`, `expenses`, `transactions`, `meals`, `dashboard`, `calendar`, `reports`, `settings`). Each feature encapsulates its own components, actions, queries, and schemas.
+- `/db`: Database schemas, relations, migrations, and seed scripts.
+- `/lib`: Shared utilities, including strict minor-unit financial calculations to prevent floating-point errors.
 
-- Node.js 18.x or later
-- Neon Database (PostgreSQL)
-
-## Local Development
-
-1. Clone the repository
-2. Run `npm install`
-3. Copy `.env.example` to `.env.local` and fill in the values
-4. Run database migrations: `npm run db:push`
-5. Seed the database: `npm run db:seed`
-6. Start the development server: `npm run dev`
-
-The application will be available at `http://localhost:3000`.
