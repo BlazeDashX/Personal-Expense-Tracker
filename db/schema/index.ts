@@ -10,3 +10,4 @@ export * from "./user-preferences";
 export * from "./relations";
 export * from "./category-budgets";
 export * from "./quick-shortcuts";
+export * from "./notifications";

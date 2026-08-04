@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import { getDashboardMetrics, getDashboardLookups } from "@/features/dashboard/queries/get-metrics";
 import { getActivity } from "@/features/activity/queries/get-activity";
 import { getCalendarData } from "@/features/calendar/queries/get-calendar-data";
+import { checkNewUserStatus } from "@/features/onboarding/queries/get-onboarding";
 import { FinancialHero } from "@/features/dashboard/components/financial-hero";
 import { QuickWidgetGrid } from "@/features/dashboard/components/quick-widgets";
 import { ActivityFeed } from "@/features/activity/components/activity-feed";
@@ -8,8 +10,14 @@ import { BudgetProgress } from "@/features/dashboard/components/budget-progress"
 import { MealCounterWidget } from "@/features/dashboard/components/meal-counter-widget";
 import { WeeklyCalendar } from "@/features/calendar/components/weekly-calendar";
 import { FloatingQuickDock } from "@/components/layout/floating-quick-dock";
+import { WelcomeCoachMarks } from "@/features/dashboard/components/welcome-coach-marks";
 
 export default async function DashboardPage() {
+  const { isNewUser } = await checkNewUserStatus();
+  if (isNewUser) {
+    redirect("/onboarding");
+  }
+
   const [metrics, lookups, fullActivity, calendarData] = await Promise.all([
     getDashboardMetrics(),
     getDashboardLookups(),
@@ -32,6 +40,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto pb-16 pt-2 md:pt-4 relative">
+      {/* Welcome Coach-Marks sequence if returning from onboarding */}
+      <WelcomeCoachMarks />
+
       {/* Dynamic Header Greeting */}
       <div className="flex items-center justify-between">
         <div>

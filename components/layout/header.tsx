@@ -6,6 +6,7 @@ import { UserNav } from "./user-nav";
 import { ThemeToggle } from "../shared/theme-toggle";
 import { GlobalAddMenu } from "./global-add-menu";
 import { Button } from "@/components/ui/button";
+import { NotificationCenter, type NotificationItem } from "@/features/notifications/components/notification-center";
 
 interface LookupItem {
   id: string;
@@ -24,6 +25,7 @@ interface HeaderProps {
   categories?: LookupItem[];
   paymentMethods?: LookupItem[];
   people?: LookupItem[];
+  notifications?: NotificationItem[];
   onOpenCommandPalette?: () => void;
 }
 
@@ -35,10 +37,19 @@ const ROUTE_TITLES: Record<string, { title: string; subtitle?: string }> = {
   "/transactions": { title: "Transactions", subtitle: "Cash in, loans & transfers" },
   "/meals": { title: "Meal Tracker", subtitle: "Mess & daily meal counts" },
   "/reports": { title: "Reports & Analytics", subtitle: "Visual insights & cash flow" },
+  "/budgets": { title: "Budgets & Limits", subtitle: "Spending targets & warning limits" },
+  "/people": { title: "People & Debts", subtitle: "Informal loans & debt tracking" },
   "/settings": { title: "Settings", subtitle: "Categories, payment methods & profile" },
 };
 
-export function Header({ user, categories = [], paymentMethods = [], people = [], onOpenCommandPalette }: HeaderProps) {
+export function Header({
+  user,
+  categories = [],
+  paymentMethods = [],
+  people = [],
+  notifications = [],
+  onOpenCommandPalette,
+}: HeaderProps) {
   const pathname = usePathname();
 
   // Find matching title or default to segment capitalization
@@ -88,6 +99,9 @@ export function Header({ user, categories = [], paymentMethods = [], people = []
         <div className="hidden md:block">
           <GlobalAddMenu categories={categories} paymentMethods={paymentMethods} people={people} />
         </div>
+
+        {/* Notification Bell Center */}
+        <NotificationCenter initialNotifications={notifications} />
 
         <ThemeToggle />
         <UserNav user={user} />

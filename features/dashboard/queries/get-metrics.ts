@@ -5,6 +5,7 @@ import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { auth } from "@/auth";
 import { startOfMonth, endOfMonth, subMonths, format, startOfDay, endOfDay } from "date-fns";
 import { fromMinorUnits } from "@/lib/finance";
+import { ensureOnboardingColumn } from "@/features/onboarding/queries/get-onboarding";
 
 export async function getDashboardMetrics() {
   const session = await auth();
@@ -118,6 +119,8 @@ export async function getDashboardLookups() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
   const userId = session.user.id;
+
+  await ensureOnboardingColumn();
 
   const [cats, pms, ppl, initialShortcuts, prefs] = await Promise.all([
     db.query.categories.findMany({ where: eq(categories.userId, userId) }),

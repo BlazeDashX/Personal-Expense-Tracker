@@ -9,6 +9,7 @@ export const userPreferences = pgTable("user_preferences", {
   locale: text("locale").default("en-BD").notNull(),
   weekStartsOn: text("week_starts_on").default("0").notNull(), // 0 = Sunday, 1 = Monday
   mealTarget: integer("meal_target").default(3).notNull(),
+  onboardingCompleted: integer("onboarding_completed").default(0).notNull(), // 0 = false, 1 = true
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

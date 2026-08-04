@@ -8,6 +8,7 @@ import { expenses } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { expenseSchema, type ExpenseInput } from "../schemas/expense-schema";
 import { toMinorUnits } from "@/lib/finance";
+import { checkAndGenerateBudgetNotification } from "@/features/notifications/queries/get-notifications";
 
 export type ActionResult = {
   success: boolean;
@@ -35,7 +36,11 @@ export async function saveExpense(data: ExpenseInput): Promise<ActionResult> {
       await db.insert(expenses).values({ ...parsed, amount: amountInMinorUnits, userId });
     }
 
+    // Trigger budget warning threshold check
+    await checkAndGenerateBudgetNotification(userId, parsed.categoryId);
+
     revalidatePath("/expenses");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (error: unknown) {
     const err = error as { message?: string };

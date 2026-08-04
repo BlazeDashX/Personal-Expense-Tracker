@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getDashboardLookups } from "@/features/dashboard/queries/get-metrics";
+import { getNotifications } from "@/features/notifications/queries/get-notifications";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 
 export default async function DashboardLayout({
@@ -13,10 +14,13 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const lookups = await getDashboardLookups();
+  const [lookups, userNotifications] = await Promise.all([
+    getDashboardLookups(),
+    getNotifications(),
+  ]);
 
   return (
-    <DashboardShell user={session.user} lookups={lookups}>
+    <DashboardShell user={session.user} lookups={lookups} notifications={userNotifications}>
       {children}
     </DashboardShell>
   );

@@ -7,6 +7,7 @@ import { MobileNav } from "./mobile-nav";
 import { CommandPalette } from "./command-palette";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import type { NotificationItem } from "@/features/notifications/components/notification-center";
 
 interface LookupItem {
   id: string;
@@ -31,11 +32,13 @@ interface LookupsData {
 export function DashboardShell({ 
   children, 
   user, 
-  lookups 
+  lookups,
+  notifications = [],
 }: { 
   children: React.ReactNode;
   user: UserInfo;
   lookups: LookupsData;
+  notifications?: NotificationItem[];
 }) {
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== "undefined") {
@@ -70,6 +73,7 @@ export function DashboardShell({
             categories={lookups.categories}
             paymentMethods={lookups.paymentMethods}
             people={lookups.people}
+            notifications={notifications}
             onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
           />
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-y-auto bg-muted/10">
