@@ -1,9 +1,9 @@
 // file: features/dashboard/queries/get-metrics.ts
 import { db } from "@/db";
-import { expenses, transactions, meals, monthlyBudgets, categories, paymentMethods, people } from "@/db/schema";
+import { expenses, transactions, meals, monthlyBudgets, categories, paymentMethods, people, quickShortcuts, userPreferences } from "@/db/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 import { auth } from "@/auth";
-import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
+import { startOfMonth, endOfMonth, subMonths, format, startOfDay, endOfDay } from "date-fns";
 import { fromMinorUnits } from "@/lib/finance";
 
 export async function getDashboardMetrics() {
@@ -66,6 +66,15 @@ export async function getDashboardMetrics() {
     .where(and(eq(meals.userId, userId), gte(meals.mealDate, currentMonthStart), lte(meals.mealDate, currentMonthEnd)));
   const currentMonthMeals = Number(mealsResult[0]?.total || 0);
 
+  // 6b. Today's Meals
+  const todayStart = startOfDay(now);
+  const todayEnd = endOfDay(now);
+  const todayMealsResult = await db
+    .select({ count: meals.mealCount })
+    .from(meals)
+    .where(and(eq(meals.userId, userId), gte(meals.mealDate, todayStart), lte(meals.mealDate, todayEnd)));
+  const todayMeals = todayMealsResult[0]?.count || 0;
+
   // 7. Monthly Budget
   const budgetResult = await db.query.monthlyBudgets.findFirst({
     where: and(eq(monthlyBudgets.userId, userId), eq(monthlyBudgets.budgetMonth, currentBudgetMonth)),
@@ -97,6 +106,7 @@ export async function getDashboardMetrics() {
     cashIn: fromMinorUnits(lifetimeCashIn),
     cashOut: fromMinorUnits(lifetimeCashOut),
     totalMeals: currentMonthMeals,
+    todayMeals,
     averageDaily: fromMinorUnits(averageDaily),
     previousMonthComparison,
     recentActivity: recentActivity.map(exp => ({ ...exp, amount: fromMinorUnits(exp.amount) })),
@@ -109,11 +119,35 @@ export async function getDashboardLookups() {
   if (!session?.user?.id) throw new Error("Unauthorized");
   const userId = session.user.id;
 
-  const [cats, pms, ppl] = await Promise.all([
+  const [cats, pms, ppl, initialShortcuts, prefs] = await Promise.all([
     db.query.categories.findMany({ where: eq(categories.userId, userId) }),
     db.query.paymentMethods.findMany({ where: eq(paymentMethods.userId, userId) }),
     db.query.people.findMany({ where: eq(people.userId, userId) }),
+    db.query.quickShortcuts.findMany({ where: eq(quickShortcuts.userId, userId), orderBy: [quickShortcuts.orderIndex] }),
+    db.query.userPreferences.findFirst({ where: eq(userPreferences.userId, userId) })
   ]);
+  
+  let shortcuts = initialShortcuts;
 
-  return { categories: cats, paymentMethods: pms, people: ppl };
+  // Provide sensible defaults if user has no shortcuts yet
+  if (shortcuts.length === 0 && cats.length > 0 && pms.length > 0) {
+    const foodCat = cats.find(c => c.name.toLowerCase().includes("food")) || cats[0];
+    const transportCat = cats.find(c => c.name.toLowerCase().includes("transport")) || cats[0];
+    const defaultPm = pms[0];
+
+    shortcuts = [
+      { id: "def-1", userId, type: "EXPENSE", title: "Tea/Coffee", amount: 5000, categoryId: foodCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Coffee", color: null, orderIndex: 0, instantMode: 0, createdAt: new Date(), updatedAt: new Date() },
+      { id: "def-2", userId, type: "EXPENSE", title: "Lunch", amount: 25000, categoryId: foodCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Utensils", color: null, orderIndex: 1, instantMode: 0, createdAt: new Date(), updatedAt: new Date() },
+      { id: "def-3", userId, type: "EXPENSE", title: "Rickshaw/Bus", amount: 6000, categoryId: transportCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Bus", color: null, orderIndex: 2, instantMode: 0, createdAt: new Date(), updatedAt: new Date() },
+      { id: "def-4", userId, type: "TRANSACTION", title: "Received Cash", amount: 100000, categoryId: null, paymentMethodId: defaultPm.id, transactionType: "CASH_IN", icon: "Banknote", color: null, orderIndex: 3, instantMode: 0, createdAt: new Date(), updatedAt: new Date() }
+    ];
+  }
+
+  return {
+    categories: cats,
+    paymentMethods: pms,
+    people: ppl,
+    shortcuts,
+    userPreferences: prefs
+  };
 }

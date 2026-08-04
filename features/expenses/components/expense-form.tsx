@@ -141,12 +141,18 @@ export function ExpenseForm({ initialData, categories, paymentMethods, onSuccess
               <FormItem>
                 <FormLabel>Amount</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-muted-foreground font-medium">৳</span>
+                    <Input 
+                      placeholder="0.00" 
+                      type="number" 
+                      step="0.01" 
+                      className="pl-7" 
+                      {...field} 
+                      onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+                      autoFocus
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

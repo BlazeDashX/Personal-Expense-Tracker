@@ -16,9 +16,10 @@ export default async function SettingsPage() {
       <Tabs defaultValue="categories" className="w-full">
         <TabsList className="mb-4 flex-wrap h-auto">
           <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="methods">Payment Methods</TabsTrigger>
+          <TabsTrigger value="methods">Accounts & Methods</TabsTrigger>
           <TabsTrigger value="people">People</TabsTrigger>
           <TabsTrigger value="budgets">Budgets</TabsTrigger>
+          <TabsTrigger value="shortcuts">Quick Shortcuts</TabsTrigger>
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
         </TabsList>
         <TabsContent value="categories">
@@ -35,6 +36,13 @@ export default async function SettingsPage() {
         </TabsContent>
         <TabsContent value="preferences">
           <PreferencesPanel data={data.preferences ?? null} />
+        </TabsContent>
+        <TabsContent value="shortcuts">
+          <div className="bg-card border rounded-xl p-8 text-center text-muted-foreground">
+             <h3 className="font-medium text-foreground mb-2">Quick Shortcuts Management</h3>
+             <p>Create and order the shortcuts that appear on your home dashboard.</p>
+             <p className="mt-4 text-xs">(Coming soon in next iteration)</p>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

@@ -33,6 +33,7 @@ export const budgetSchema = z.object({
 export const preferencesSchema = z.object({
   currencyCode: z.string().min(1, "Currency code is required"),
   weekStartsOn: z.string().min(1, "Week start day is required"),
+  mealTarget: z.coerce.number().min(0, "Must be at least 0").default(3),
 });
 
 export type CategoryFormValues = z.infer<typeof categorySchema>;

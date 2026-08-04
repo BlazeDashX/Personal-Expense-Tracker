@@ -560,6 +560,7 @@ export function PreferencesPanel({ data }: { data: UserPreferences | null | unde
     defaultValues: {
       currencyCode: data?.currencyCode || "BDT",
       weekStartsOn: String(data?.weekStartsOn ?? "0"),
+      mealTarget: data?.mealTarget ?? 3,
     },
   });
 
@@ -604,6 +605,19 @@ export function PreferencesPanel({ data }: { data: UserPreferences | null | unde
                   <FormLabel>Week Starts On (0=Sun, 1=Mon)</FormLabel>
                   <FormControl>
                     <Input type="number" min="0" max="6" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="mealTarget"
+              render={({ field }: { field: ControllerRenderProps<PreferencesFormValues, "mealTarget"> }) => (
+                <FormItem>
+                  <FormLabel>Daily Meal Target</FormLabel>
+                  <FormControl>
+                    <Input type="number" min="0" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
