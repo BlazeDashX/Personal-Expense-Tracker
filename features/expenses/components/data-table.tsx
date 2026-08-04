@@ -12,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { MoreHorizontal, Plus, Download, Trash, Copy, Pencil, Search, Filter, Inbox, X, Calculator, Receipt } from "lucide-react";
+import { MoreHorizontal, Plus, Download, Trash, Copy, Pencil, Search, Inbox, X, Calculator, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -24,7 +24,7 @@ import { ExpenseForm } from "./expense-form";
 import { downloadDataAsFile } from "../utils/export";
 import { deleteExpense, duplicateExpense, bulkDeleteExpenses } from "../actions/expense-actions";
 import { Amount } from "@/components/shared/amount";
-import { formatMoney, toMinorUnits } from "@/lib/finance";
+import { toMinorUnits } from "@/lib/finance";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { Category, PaymentMethod } from "@/features/settings/components/settings-panels";
