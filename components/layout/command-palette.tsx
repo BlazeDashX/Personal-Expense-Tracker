@@ -15,6 +15,7 @@ import {
   TrendingDown,
   ArrowDownToLine,
   HandCoins,
+  WalletCards,
   Search,
   Loader2,
   User,
@@ -56,7 +57,7 @@ const NAV_COMMANDS = [
   { group: "Navigation", id: "nav-people", name: "People & Debts", href: "/people", icon: HandCoins },
   { group: "Navigation", id: "nav-meals", name: "Meals", href: "/meals", icon: UtensilsCrossed },
   { group: "Navigation", id: "nav-reports", name: "Reports", href: "/reports", icon: PieChart },
-  { group: "Navigation", id: "nav-budgets", name: "Budgets", href: "/budgets", icon: PlusCircle },
+  { group: "Navigation", id: "nav-budgets", name: "Budgets", href: "/budgets", icon: WalletCards },
   { group: "Navigation", id: "nav-settings", name: "Settings", href: "/settings", icon: Settings },
 ];
 

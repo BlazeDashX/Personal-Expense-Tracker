@@ -30,7 +30,7 @@ export function ReportCharts({ expenseByCategory, trendData, cashFlowData }: Rep
         </CardHeader>
         <CardContent className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-6">
           {/* Pie Donut Chart */}
-          <div className="lg:col-span-5 h-[320px] w-full flex items-center justify-center">
+          <div className="lg:col-span-5 h-80 w-full flex items-center justify-center">
             {expenseByCategory.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -63,7 +63,7 @@ export function ReportCharts({ expenseByCategory, trendData, cashFlowData }: Rep
               Category Rankings & Share
             </div>
             {expenseByCategory.length > 0 ? (
-              <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                 {expenseByCategory.map((cat, idx) => {
                   const sharePercent = totalExpenseSum > 0 ? Math.round((cat.value / totalExpenseSum) * 100) : 0;
                   return (
@@ -97,7 +97,7 @@ export function ReportCharts({ expenseByCategory, trendData, cashFlowData }: Rep
           <CardTitle className="text-lg font-bold tracking-tight">Cash Flow Overview</CardTitle>
           <CardDescription className="text-xs text-muted-foreground">Income vs Outflow vs Expenses.</CardDescription>
         </CardHeader>
-        <CardContent className="h-[320px] w-full pb-4">
+        <CardContent className="h-80 w-full pb-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={cashFlowData} margin={{ top: 20, right: 20, left: 10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
@@ -120,7 +120,7 @@ export function ReportCharts({ expenseByCategory, trendData, cashFlowData }: Rep
           <CardTitle className="text-lg font-bold tracking-tight">Daily Spending Trend</CardTitle>
           <CardDescription className="text-xs text-muted-foreground">Daily expense amounts over the selected period.</CardDescription>
         </CardHeader>
-        <CardContent className="h-[320px] w-full pb-4">
+        <CardContent className="h-80 w-full pb-4">
           {trendData.some((d) => d.expense > 0) ? (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trendData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
@@ -149,7 +149,7 @@ export function ReportCharts({ expenseByCategory, trendData, cashFlowData }: Rep
           <CardTitle className="text-lg font-bold tracking-tight">Meal Logging Consistency</CardTitle>
           <CardDescription className="text-xs text-muted-foreground">Daily meal count logged over the selected period.</CardDescription>
         </CardHeader>
-        <CardContent className="h-[320px] w-full pb-4">
+        <CardContent className="h-80 w-full pb-4">
           {trendData.some((d) => d.meals > 0) ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trendData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>

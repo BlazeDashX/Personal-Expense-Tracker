@@ -13,6 +13,7 @@ import {
   ArrowRightLeft,
   UtensilsCrossed,
   HandCoins,
+  WalletCards,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -57,7 +58,7 @@ const MORE_NAV_GROUPS = [
     label: "Insights",
     items: [
       { name: "Reports", href: "/reports", icon: PieChart },
-      { name: "Budgets", href: "/budgets", icon: Receipt },
+      { name: "Budgets", href: "/budgets", icon: WalletCards },
     ],
   },
   {
