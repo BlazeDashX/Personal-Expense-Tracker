@@ -14,13 +14,14 @@ export function formatMoney(
 ): string {
   void currencyCode;
   const major = amountInMinorUnits / 100;
-  const isWhole = major % 1 === 0;
+  const absMajor = Math.abs(major);
+  const isWhole = absMajor % 1 === 0;
 
   const formattedNumber = new Intl.NumberFormat(locale, {
     style: "decimal",
     minimumFractionDigits: isWhole ? 0 : 2,
     maximumFractionDigits: 2,
-  }).format(major);
+  }).format(absMajor);
 
-  return `৳${formattedNumber}`;
-}
+  return major < 0 ? `-৳${formattedNumber}` : `৳${formattedNumber}`;
+}

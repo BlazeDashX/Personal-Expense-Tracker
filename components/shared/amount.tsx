@@ -41,13 +41,13 @@ export function Amount({
   let Icon: React.ComponentType<{ className?: string }> | null = null;
 
   if (sign === "positive") {
-    colorClasses = "text-emerald-500 dark:text-emerald-400";
+    colorClasses = "text-secondary";
     Icon = ArrowUpRight;
   } else if (sign === "negative") {
-    colorClasses = "text-rose-500 dark:text-rose-400";
+    colorClasses = "text-destructive";
     Icon = ArrowDownLeft;
   } else if (sign === "neutral") {
-    colorClasses = "text-indigo-500 dark:text-indigo-400";
+    colorClasses = "text-transfer";
     Icon = ArrowRightLeft;
   }
 
@@ -65,3 +65,4 @@ export function Amount({
     </span>
   );
 }
+
