@@ -11,7 +11,12 @@ export async function getReportData(startDate: Date, endDate: Date) {
   if (!session?.user?.id) throw new Error("Unauthorized");
   const userId = session.user.id;
 
-  const [rawExpenses, rawTransactions, rawMeals] = await Promise.all([
+  // Previous period calculation for comparison
+  const durationMs = Math.max(86400000, endDate.getTime() - startDate.getTime());
+  const prevStartDate = new Date(startDate.getTime() - durationMs);
+  const prevEndDate = new Date(startDate.getTime() - 1);
+
+  const [rawExpenses, rawTransactions, rawMeals, prevExpenses] = await Promise.all([
     db.query.expenses.findMany({
       where: and(eq(expenses.userId, userId), gte(expenses.expenseDate, startDate), lte(expenses.expenseDate, endDate)),
       with: { category: true, paymentMethod: true },
@@ -23,6 +28,9 @@ export async function getReportData(startDate: Date, endDate: Date) {
     }),
     db.query.meals.findMany({
       where: and(eq(meals.userId, userId), gte(meals.mealDate, startDate), lte(meals.mealDate, endDate)),
+    }),
+    db.query.expenses.findMany({
+      where: and(eq(expenses.userId, userId), gte(expenses.expenseDate, prevStartDate), lte(expenses.expenseDate, prevEndDate)),
     }),
   ]);
 
@@ -69,9 +77,18 @@ export async function getReportData(startDate: Date, endDate: Date) {
     };
   });
 
-  const highestSpendingDay = [...trendData].sort((a, b) => b.expense - a.expense)[0] || null;
+  const sortedDays = [...trendData].sort((a, b) => b.expense - a.expense);
+  const highestSpendingDayObj = sortedDays[0] || null;
+
   const averageDaily = trendData.length > 0 ? totalExpense / trendData.length : 0;
   const totalMeals = rawMeals.reduce((sum, m) => sum + m.mealCount, 0);
+
+  // Period over period comparison
+  const prevTotalExpense = prevExpenses.reduce((sum, e) => sum + fromMinorUnits(e.amount), 0);
+  let expenseComparisonPercent = 0;
+  if (prevTotalExpense > 0) {
+    expenseComparisonPercent = Math.round(((totalExpense - prevTotalExpense) / prevTotalExpense) * 100);
+  }
 
   // Cash Flow
   let cashIn = 0;
@@ -92,9 +109,14 @@ export async function getReportData(startDate: Date, endDate: Date) {
       netFlow: cashIn - cashOut - totalExpense,
       totalMeals,
       highestCategory: highestCategory ? highestCategory.name : "N/A",
-      highestSpendingDay: highestSpendingDay && highestSpendingDay.expense > 0 ? highestSpendingDay.fullDate : "N/A",
+      highestCategoryAmount: highestCategory ? highestCategory.value : 0,
+      highestSpendingDay: highestSpendingDayObj && highestSpendingDayObj.expense > 0 ? highestSpendingDayObj.date : "N/A",
+      highestSpendingDayAmount: highestSpendingDayObj && highestSpendingDayObj.expense > 0 ? highestSpendingDayObj.expense : 0,
       transactionCount: rawTransactions.length,
+      prevTotalExpense,
+      expenseComparisonPercent,
     },
+    rawExpenses,
     expenseByCategory,
     trendData,
     cashFlowData: [
