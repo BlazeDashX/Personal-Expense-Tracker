@@ -52,6 +52,13 @@ const MORE_NAV_GROUPS = [
     ],
   },
   {
+    label: "Insights",
+    items: [
+      { name: "Reports", href: "/reports", icon: PieChart },
+      { name: "Budgets", href: "/budgets", icon: Receipt },
+    ],
+  },
+  {
     label: "Preferences",
     items: [
       { name: "Settings", href: "/settings", icon: Settings },

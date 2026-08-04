@@ -10,6 +10,7 @@ import { meals } from "./meals";
 import { monthlyBudgets } from "./monthly-budgets";
 import { userPreferences } from "./user-preferences";
 import { quickShortcuts } from "./quick-shortcuts";
+import { categoryBudgets } from "./category-budgets";
 
 // Drizzle ORM Relations definitions (helps with structured queries)
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -25,6 +26,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   meals: many(meals),
   monthlyBudgets: many(monthlyBudgets),
   quickShortcuts: many(quickShortcuts),
+  categoryBudgets: many(categoryBudgets),
 }));
 
 export const expensesRelations = relations(expenses, ({ one }) => ({
@@ -44,4 +46,9 @@ export const quickShortcutsRelations = relations(quickShortcuts, ({ one }) => ({
   user: one(users, { fields: [quickShortcuts.userId], references: [users.id] }),
   category: one(categories, { fields: [quickShortcuts.categoryId], references: [categories.id] }),
   paymentMethod: one(paymentMethods, { fields: [quickShortcuts.paymentMethodId], references: [paymentMethods.id] }),
+}));
+
+export const categoryBudgetsRelations = relations(categoryBudgets, ({ one }) => ({
+  user: one(users, { fields: [categoryBudgets.userId], references: [users.id] }),
+  category: one(categories, { fields: [categoryBudgets.categoryId], references: [categories.id] }),
 }));

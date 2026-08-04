@@ -130,7 +130,7 @@ function DailyPaceRing({
             Set a monthly budget to get a real-time safe daily spending allowance that adapts automatically every day.
           </p>
         </div>
-        <Link href="/settings">
+        <Link href="/budgets">
           <Button size="sm" className="h-8 text-xs font-semibold gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl">
             Set Monthly Budget <ArrowRight className="h-3.5 w-3.5" />
           </Button>

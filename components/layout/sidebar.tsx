@@ -50,6 +50,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Insights",
     items: [
       { name: "Reports", href: "/reports", icon: PieChart },
+      { name: "Budgets", href: "/budgets", icon: WalletCards },
     ],
   },
   {
