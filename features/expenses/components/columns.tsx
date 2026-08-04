@@ -1,11 +1,13 @@
-// file: features/expenses/components/columns.tsx
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import * as Icons from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatMoney } from "@/lib/finance";
+import { Button } from "@/components/ui/button";
+import { Amount } from "@/components/shared/amount";
+import { toMinorUnits } from "@/lib/finance";
 
 type IconComponent = React.ComponentType<{ className?: string }>;
 const iconMap = Icons as unknown as Record<string, IconComponent>;
@@ -41,25 +43,52 @@ export const columns: ColumnDef<ExpenseColumnType>[] = [
   },
   {
     accessorKey: "expenseDate",
-    header: "Date",
-    cell: ({ row }) => <span>{format(new Date(row.original.expenseDate), "MMM dd, yyyy")}</span>,
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="-ml-3 h-8 text-xs font-bold"
+      >
+        Date
+        <ArrowUpDown className="ml-1.5 h-3.5 w-3.5" />
+      </Button>
+    ),
+    cell: ({ row }) => <span className="text-xs font-medium text-muted-foreground">{format(new Date(row.original.expenseDate), "MMM dd, yyyy")}</span>,
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="-ml-3 h-8 text-xs font-bold"
+      >
+        Description
+        <ArrowUpDown className="ml-1.5 h-3.5 w-3.5" />
+      </Button>
+    ),
+    cell: ({ row }) => <span className="font-semibold text-sm text-foreground">{row.original.description}</span>,
   },
   {
     accessorKey: "category.name",
     header: "Category",
     cell: ({ row }) => {
       const cat = row.original.category;
-      const Icon = iconMap[cat.icon] || Icons.HelpCircle;
+      const Icon = iconMap[cat.icon] || Icons.Tag;
       return (
         <div className="flex items-center gap-2">
-          <div className="p-1 rounded-md" style={{ backgroundColor: cat.color + "20", color: cat.color }}>
-            <Icon className="h-4 w-4" />
+          <div
+            className="p-1 rounded-lg shrink-0 flex items-center justify-center"
+            style={{ backgroundColor: `${cat.color}20`, color: cat.color }}
+          >
+            <Icon className="h-3.5 w-3.5" />
           </div>
-          <span>{cat.name}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+            <span className="text-xs font-medium">{cat.name}</span>
+          </div>
         </div>
       );
     },
@@ -67,12 +96,29 @@ export const columns: ColumnDef<ExpenseColumnType>[] = [
   {
     accessorKey: "paymentMethod.name",
     header: "Method",
+    cell: ({ row }) => <span className="text-xs text-muted-foreground font-medium">{row.original.paymentMethod.name}</span>,
   },
   {
     accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
+    header: ({ column }) => (
+      <div className="text-right">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="-mr-3 h-8 text-xs font-bold"
+        >
+          Amount
+          <ArrowUpDown className="ml-1.5 h-3.5 w-3.5" />
+        </Button>
+      </div>
+    ),
     cell: ({ row }) => {
-      return <div className="text-right font-medium">{formatMoney(row.original.amount * 100)}</div>;
+      return (
+        <div className="text-right">
+          <Amount amount={toMinorUnits(row.original.amount)} sign="negative" className="font-mono tabular-nums font-bold" />
+        </div>
+      );
     },
   },
 ];
