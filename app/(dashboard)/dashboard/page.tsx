@@ -1,18 +1,20 @@
 import { getDashboardMetrics, getDashboardLookups } from "@/features/dashboard/queries/get-metrics";
 import { getActivity } from "@/features/activity/queries/get-activity";
+import { getCalendarData } from "@/features/calendar/queries/get-calendar-data";
 import { FinancialHero } from "@/features/dashboard/components/financial-hero";
-import { DailyQuickChips } from "@/features/dashboard/components/daily-quick-chips";
-import { MealCounterWidget } from "@/features/dashboard/components/meal-counter-widget";
 import { QuickWidgetGrid } from "@/features/dashboard/components/quick-widgets";
 import { ActivityFeed } from "@/features/activity/components/activity-feed";
+import { BudgetProgress } from "@/features/dashboard/components/budget-progress";
+import { MealCounterWidget } from "@/features/dashboard/components/meal-counter-widget";
 import { WeeklyCalendar } from "@/features/calendar/components/weekly-calendar";
 import { FloatingQuickDock } from "@/components/layout/floating-quick-dock";
 
 export default async function DashboardPage() {
-  const [metrics, lookups, fullActivity] = await Promise.all([
+  const [metrics, lookups, fullActivity, calendarData] = await Promise.all([
     getDashboardMetrics(),
     getDashboardLookups(),
     getActivity(),
+    getCalendarData(new Date()),
   ]);
 
   const recentActivity = fullActivity.slice(0, 5);
@@ -29,7 +31,7 @@ export default async function DashboardPage() {
   else if (hour >= 17) greeting = "Good evening";
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto pb-16 pt-2 md:pt-4 relative">
+    <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto pb-16 pt-2 md:pt-4 relative">
       {/* Dynamic Header Greeting */}
       <div className="flex items-center justify-between">
         <div>
@@ -38,7 +40,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 1: Glassmorphic Financial Hero with Daily Spending Pace */}
+      {/* Row 1: Glassmorphic Financial Hero with Signature Daily Pace Ring */}
       <FinancialHero 
         currentBalance={metrics.currentBalance}
         monthlyExpense={metrics.monthlyExpense}
@@ -47,31 +49,15 @@ export default async function DashboardPage() {
         todayExpense={todayExpense}
       />
 
-      {/* Row 2: 1-Tap Daily Quick Expense Chips */}
-      <DailyQuickChips 
-        categories={lookups.categories} 
-        paymentMethods={lookups.paymentMethods} 
-      />
+      {/* Main Layout Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* Main Column (2 Cols on Large Screens) */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          {/* Consolidated Quick Shortcuts */}
+          <QuickWidgetGrid shortcuts={lookups.shortcuts} />
 
-      {/* Main Grid Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Main Column */}
-        <div className="md:col-span-2 flex flex-col gap-6">
+          {/* Recent Activity Feed */}
           <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold tracking-tight">Quick Expenses</h2>
-            </div>
-            <QuickWidgetGrid shortcuts={lookups.shortcuts} type="EXPENSE" />
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold tracking-tight">Quick Transactions</h2>
-            </div>
-            <QuickWidgetGrid shortcuts={lookups.shortcuts} type="TRANSACTION" />
-          </div>
-          
-          <div className="flex flex-col gap-3 mt-2">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold tracking-tight">Recent Activity</h2>
             </div>
@@ -84,23 +70,26 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Side Column: Habit Tracking & Calendar */}
+        {/* Side Column: Budget Progress, Meal Tracking & Weekly Calendar */}
         <div className="flex flex-col gap-6">
+          {/* Monthly Budget Progress Card */}
+          <BudgetProgress spent={metrics.monthlyExpense} budget={metrics.budgetAmount} />
+
+          {/* Meal Tracker Widget */}
           <MealCounterWidget 
             initialCount={metrics.todayMeals} 
             target={lookups.userPreferences?.mealTarget || 3} 
           />
           
-          <div className="bg-card border rounded-2xl p-5 shadow-sm overflow-hidden">
+          {/* This Week Mini Calendar */}
+          <div className="bg-card border rounded-2xl p-4 sm:p-5 shadow-xs overflow-hidden">
             <h3 className="font-bold text-base mb-3">This Week</h3>
-            <div className="w-full">
-               <WeeklyCalendar />
-            </div>
+            <WeeklyCalendar expenses={calendarData.expenses} meals={calendarData.meals} />
           </div>
         </div>
       </div>
 
-      {/* Persistent Floating Quick Dock */}
+      {/* Floating Quick Dock for Desktop */}
       <FloatingQuickDock 
         categories={lookups.categories} 
         paymentMethods={lookups.paymentMethods} 

@@ -132,14 +132,16 @@ export async function getDashboardLookups() {
   // Provide sensible defaults if user has no shortcuts yet
   if (shortcuts.length === 0 && cats.length > 0 && pms.length > 0) {
     const foodCat = cats.find(c => c.name.toLowerCase().includes("food")) || cats[0];
-    const transportCat = cats.find(c => c.name.toLowerCase().includes("transport")) || cats[0];
+    const snackCat = cats.find(c => c.name.toLowerCase().includes("snack")) || foodCat;
+    const travelCat = cats.find(c => c.name.toLowerCase().includes("travel") || c.name.toLowerCase().includes("transport")) || cats[0];
     const defaultPm = pms[0];
 
     shortcuts = [
-      { id: "def-1", userId, type: "EXPENSE", title: "Tea/Coffee", amount: 5000, categoryId: foodCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Coffee", color: null, orderIndex: 0, instantMode: 0, createdAt: new Date(), updatedAt: new Date() },
-      { id: "def-2", userId, type: "EXPENSE", title: "Lunch", amount: 25000, categoryId: foodCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Utensils", color: null, orderIndex: 1, instantMode: 0, createdAt: new Date(), updatedAt: new Date() },
-      { id: "def-3", userId, type: "EXPENSE", title: "Rickshaw/Bus", amount: 6000, categoryId: transportCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Bus", color: null, orderIndex: 2, instantMode: 0, createdAt: new Date(), updatedAt: new Date() },
-      { id: "def-4", userId, type: "TRANSACTION", title: "Received Cash", amount: 100000, categoryId: null, paymentMethodId: defaultPm.id, transactionType: "CASH_IN", icon: "Banknote", color: null, orderIndex: 3, instantMode: 0, createdAt: new Date(), updatedAt: new Date() }
+      { id: "def-1", userId, type: "EXPENSE", title: "Tea & Snacks", amount: 4000, categoryId: snackCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Coffee", color: null, orderIndex: 0, instantMode: 1, createdAt: new Date(), updatedAt: new Date() },
+      { id: "def-2", userId, type: "EXPENSE", title: "Lunch", amount: 15000, categoryId: foodCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Utensils", color: null, orderIndex: 1, instantMode: 0, createdAt: new Date(), updatedAt: new Date() },
+      { id: "def-3", userId, type: "EXPENSE", title: "Rickshaw/Bus", amount: 5000, categoryId: travelCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "Bus", color: null, orderIndex: 2, instantMode: 1, createdAt: new Date(), updatedAt: new Date() },
+      { id: "def-4", userId, type: "EXPENSE", title: "Dinner", amount: 20000, categoryId: foodCat.id, paymentMethodId: defaultPm.id, transactionType: null, icon: "UtensilsCrossed", color: null, orderIndex: 3, instantMode: 0, createdAt: new Date(), updatedAt: new Date() },
+      { id: "def-5", userId, type: "TRANSACTION", title: "Cash Received", amount: 100000, categoryId: null, paymentMethodId: defaultPm.id, transactionType: "CASH_IN", icon: "Banknote", color: null, orderIndex: 4, instantMode: 0, createdAt: new Date(), updatedAt: new Date() }
     ];
   }
 

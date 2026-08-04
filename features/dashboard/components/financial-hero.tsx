@@ -1,8 +1,11 @@
 "use client";
 
-import { ArrowDownToLine, TrendingDown, Target, Sparkles, Sun, Moon, Sunrise, Compass } from "lucide-react";
+import Link from "next/link";
+import { ArrowDownToLine, TrendingDown, Sparkles, Sun, Moon, Sunrise, Compass, ArrowRight } from "lucide-react";
 import { formatMoney, toMinorUnits } from "@/lib/finance";
 import { Amount } from "@/components/shared/amount";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface FinancialHeroProps {
   currentBalance: number;
@@ -20,7 +23,6 @@ export function FinancialHero({
   todayExpense = 0,
 }: FinancialHeroProps) {
   const budgetRemaining = budgetAmount - monthlyExpense;
-  const budgetPercent = budgetAmount > 0 ? (monthlyExpense / budgetAmount) * 100 : 0;
   
   // Calculate Daily Budget Allowance
   const now = new Date();
@@ -32,19 +34,6 @@ export function FinancialHero({
   const safeDailyAllowance = budgetAmount > 0 
     ? Math.max(0, Math.round(budgetRemaining / daysRemaining)) 
     : 0;
-
-  const isDailyOver = safeDailyAllowance > 0 && todayExpense > safeDailyAllowance;
-  const dailyPercent = safeDailyAllowance > 0 ? Math.min(100, (todayExpense / safeDailyAllowance) * 100) : 0;
-
-  let budgetColor = "text-emerald-500";
-  let budgetBg = "bg-emerald-500";
-  if (budgetPercent > 90) {
-    budgetColor = "text-rose-500";
-    budgetBg = "bg-rose-500";
-  } else if (budgetPercent > 75) {
-    budgetColor = "text-amber-500";
-    budgetBg = "bg-amber-500";
-  }
 
   // Greeting & Time Badge
   const hour = now.getHours();
@@ -72,27 +61,38 @@ export function FinancialHero({
         </div>
 
         {budgetAmount > 0 && (
-          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 px-3 py-1 rounded-full">
-            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 px-3 py-1 rounded-full font-mono tabular-nums">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span>
-              {safeDailyAllowance > 0 
-                ? `Safe Today: ${formatMoney(toMinorUnits(safeDailyAllowance))}/day` 
-                : "Budget Active"}
+              Safe Today: {formatMoney(toMinorUnits(safeDailyAllowance))}/day
             </span>
           </div>
         )}
       </div>
 
-      {/* Available Balance Big Display */}
-      <div className="flex flex-col gap-1 relative z-10">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Available Balance</span>
-        <div className="text-4xl md:text-5xl font-black tracking-tight flex items-baseline gap-2">
-          <Amount amount={toMinorUnits(currentBalance)} className="text-4xl md:text-5xl font-black tracking-tight" />
+      {/* Main Grid: Available Balance + Signature Daily Pace Ring */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10">
+        {/* Available Balance Display */}
+        <div className="md:col-span-6 flex flex-col gap-1">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Available Balance</span>
+          <div className="text-4xl md:text-5xl font-black tracking-tight flex items-baseline gap-2">
+            <Amount amount={toMinorUnits(currentBalance)} className="text-4xl md:text-5xl font-black tracking-tight" />
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Real-time liquid balance across all accounts</p>
+        </div>
+
+        {/* Signature Daily Pace Focal Point */}
+        <div className="md:col-span-6">
+          <DailyPaceRing 
+            todayExpense={todayExpense} 
+            safeAllowance={safeDailyAllowance} 
+            budgetAmount={budgetAmount} 
+          />
         </div>
       </div>
 
-      {/* Key Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10 pt-2 border-t border-border/50">
+      {/* Key Stats Footer Row */}
+      <div className="grid grid-cols-2 gap-4 relative z-10 pt-4 border-t border-border/50">
         <HeroStat 
           icon={<TrendingDown className="h-4 w-4 text-rose-500" />} 
           label="Spent this month" 
@@ -100,53 +100,101 @@ export function FinancialHero({
         />
         <HeroStat 
           icon={<ArrowDownToLine className="h-4 w-4 text-emerald-500" />} 
-          label="Cash in" 
+          label="Cash in this month" 
           value={formatMoney(toMinorUnits(cashIn))} 
         />
-        
-        {/* Daily Spending Pace Card */}
-        {safeDailyAllowance > 0 ? (
-          <div className="col-span-2 flex flex-col justify-center gap-2 p-3.5 bg-background/80 backdrop-blur-md rounded-2xl border border-border/80 shadow-sm">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-muted-foreground font-medium flex items-center gap-1">
-                <Compass className="h-3.5 w-3.5 text-primary" /> Daily Pace
-              </span>
-              <span className={`font-bold font-mono tabular-nums ${isDailyOver ? "text-rose-500" : "text-emerald-500"}`}>
-                {formatMoney(toMinorUnits(todayExpense))} / {formatMoney(toMinorUnits(safeDailyAllowance))}
-              </span>
-            </div>
-            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-              <div 
-                className={`h-full ${isDailyOver ? "bg-rose-500" : "bg-emerald-500"} transition-all duration-500`} 
-                style={{ width: `${dailyPercent}%` }} 
-              />
-            </div>
-            <span className="text-[11px] text-muted-foreground font-mono tabular-nums">
-              {isDailyOver 
-                ? "⚠️ Exceeded safe daily limit" 
-                : `🟢 ${formatMoney(toMinorUnits(safeDailyAllowance - todayExpense))} room left for today`}
-            </span>
-          </div>
-        ) : (
-          budgetAmount > 0 && (
-            <div className="col-span-2 flex flex-col justify-center gap-2 p-3.5 bg-background/80 backdrop-blur-md rounded-2xl border border-border/80 shadow-sm">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-muted-foreground font-medium flex items-center gap-1">
-                  <Target className="h-3.5 w-3.5" /> Budget Remaining
-                </span>
-                <span className={`font-bold font-mono tabular-nums ${budgetColor}`}>
-                  {formatMoney(toMinorUnits(Math.max(0, budgetRemaining)))}
-                </span>
-              </div>
-              <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                <div 
-                  className={`h-full ${budgetBg} transition-all duration-500`} 
-                  style={{ width: `${Math.min(100, budgetPercent)}%` }} 
-                />
-              </div>
-            </div>
-          )
-        )}
+      </div>
+    </div>
+  );
+}
+
+function DailyPaceRing({ 
+  todayExpense, 
+  safeAllowance, 
+  budgetAmount 
+}: { 
+  todayExpense: number; 
+  safeAllowance: number; 
+  budgetAmount: number;
+}) {
+  if (budgetAmount <= 0) {
+    return (
+      <div className="flex flex-col items-start gap-2.5 p-4 rounded-2xl bg-card/60 border border-primary/20 backdrop-blur-md">
+        <div className="flex items-center gap-2 text-primary">
+          <Compass className="h-4 w-4" />
+          <span className="font-bold text-xs uppercase tracking-wider">Daily Pace Feature</span>
+        </div>
+        <div className="space-y-0.5">
+          <h4 className="font-bold text-sm text-foreground">Track Your Daily Pace</h4>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Set a monthly budget to get a real-time safe daily spending allowance that adapts automatically every day.
+          </p>
+        </div>
+        <Link href="/settings">
+          <Button size="sm" className="h-8 text-xs font-semibold gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl">
+            Set Monthly Budget <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const percentage = safeAllowance > 0 ? Math.min(100, Math.round((todayExpense / safeAllowance) * 100)) : 0;
+  const isOver = safeAllowance > 0 && todayExpense > safeAllowance;
+  const radius = 34;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="flex items-center gap-4 p-4 rounded-2xl bg-card/60 border border-border/80 backdrop-blur-md shadow-sm">
+      {/* SVG Progress Ring */}
+      <div className="relative flex items-center justify-center shrink-0 w-20 h-20">
+        <svg className="w-20 h-20 transform -rotate-90">
+          <circle
+            cx="40"
+            cy="40"
+            r={radius}
+            className="stroke-muted"
+            strokeWidth="6"
+            fill="transparent"
+          />
+          <circle
+            cx="40"
+            cy="40"
+            r={radius}
+            className={cn(
+              "transition-all duration-700 ease-out",
+              isOver ? "stroke-destructive" : "stroke-primary"
+            )}
+            strokeWidth="6"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            fill="transparent"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <span className="text-xs font-bold font-mono tabular-nums">
+            {percentage}%
+          </span>
+          <span className="text-[9px] uppercase tracking-tighter text-muted-foreground font-semibold">Pace</span>
+        </div>
+      </div>
+
+      {/* Ring Metadata */}
+      <div className="flex flex-col justify-center gap-1">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+          <Compass className="h-3.5 w-3.5 text-primary" />
+          <span>Daily Spending Pace</span>
+        </div>
+        <div className="text-base font-extrabold font-mono tabular-nums text-foreground">
+          {formatMoney(toMinorUnits(todayExpense))} <span className="text-xs font-normal text-muted-foreground">/ {formatMoney(toMinorUnits(safeAllowance))}</span>
+        </div>
+        <span className={cn("text-xs font-medium font-mono tabular-nums", isOver ? "text-destructive" : "text-emerald-500 font-semibold")}>
+          {isOver
+            ? `⚠️ Over safe limit by ${formatMoney(toMinorUnits(todayExpense - safeAllowance))}`
+            : `🟢 ${formatMoney(toMinorUnits(safeAllowance - todayExpense))} safe to spend today`}
+        </span>
       </div>
     </div>
   );
