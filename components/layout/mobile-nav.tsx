@@ -12,6 +12,7 @@ import {
   Receipt,
   ArrowRightLeft,
   UtensilsCrossed,
+  HandCoins,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ const MORE_NAV_GROUPS = [
     items: [
       { name: "Expenses", href: "/expenses", icon: Receipt },
       { name: "Transactions", href: "/transactions", icon: ArrowRightLeft },
+      { name: "People & Debts", href: "/people", icon: HandCoins },
       { name: "Meals", href: "/meals", icon: UtensilsCrossed },
     ],
   },

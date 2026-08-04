@@ -23,15 +23,19 @@ export function LoanForm({
   onCancel,
   paymentMethods = [],
   people: initialPeople = [],
+  initialPersonId,
+  initialDirection = "LOAN_GIVEN",
 }: {
   onCancel: () => void;
   paymentMethods?: LookupItem[];
   people?: LookupItem[];
+  initialPersonId?: string;
+  initialDirection?: "LOAN_GIVEN" | "BORROWED" | "RETURNED";
 }) {
-  const [direction, setDirection] = useState<"LOAN_GIVEN" | "BORROWED">("LOAN_GIVEN");
+  const [direction, setDirection] = useState<"LOAN_GIVEN" | "BORROWED" | "RETURNED">(initialDirection);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [personId, setPersonId] = useState(initialPeople[0]?.id || "");
+  const [personId, setPersonId] = useState(initialPersonId || initialPeople[0]?.id || "");
   const [paymentMethodId, setPaymentMethodId] = useState(paymentMethods[0]?.id || "");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,30 +127,42 @@ export function LoanForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {/* Direction Toggle */}
-      <div className="grid grid-cols-2 p-1 bg-muted rounded-2xl gap-1">
+      <div className="grid grid-cols-3 p-1 bg-muted rounded-2xl gap-1">
         <button
           type="button"
           onClick={() => setDirection("LOAN_GIVEN")}
           className={cn(
-            "py-2 px-3 text-xs font-bold rounded-xl transition-colors text-center",
+            "py-2 px-2 text-xs font-bold rounded-xl transition-colors text-center",
             direction === "LOAN_GIVEN"
               ? "bg-card text-amber-500 shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          🤝 I Lent Money (Given)
+          🤝 Lent
         </button>
         <button
           type="button"
           onClick={() => setDirection("BORROWED")}
           className={cn(
-            "py-2 px-3 text-xs font-bold rounded-xl transition-colors text-center",
+            "py-2 px-2 text-xs font-bold rounded-xl transition-colors text-center",
             direction === "BORROWED"
               ? "bg-card text-indigo-500 shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          📥 I Borrowed Money
+          📥 Borrowed
+        </button>
+        <button
+          type="button"
+          onClick={() => setDirection("RETURNED")}
+          className={cn(
+            "py-2 px-2 text-xs font-bold rounded-xl transition-colors text-center",
+            direction === "RETURNED"
+              ? "bg-card text-emerald-500 shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          🔄 Repayment
         </button>
       </div>
 

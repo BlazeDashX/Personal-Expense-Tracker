@@ -13,6 +13,7 @@ import {
   PieChart,
   Settings,
   WalletCards,
+  HandCoins,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -43,6 +44,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { name: "Expenses", href: "/expenses", icon: Receipt },
       { name: "Transactions", href: "/transactions", icon: ArrowRightLeft },
+      { name: "People & Debts", href: "/people", icon: HandCoins },
       { name: "Meals", href: "/meals", icon: UtensilsCrossed },
     ],
   },

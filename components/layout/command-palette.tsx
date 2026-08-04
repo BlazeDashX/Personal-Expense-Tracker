@@ -33,6 +33,7 @@ const NAV_COMMANDS = [
   { group: "Navigation", id: "nav-calendar", name: "Calendar", href: "/calendar", icon: CalendarDays },
   { group: "Navigation", id: "nav-expenses", name: "Expenses", href: "/expenses", icon: Receipt },
   { group: "Navigation", id: "nav-transactions", name: "Transactions", href: "/transactions", icon: ArrowRightLeft },
+  { group: "Navigation", id: "nav-people", name: "People & Debts", href: "/people", icon: HandCoins },
   { group: "Navigation", id: "nav-meals", name: "Meals", href: "/meals", icon: UtensilsCrossed },
   { group: "Navigation", id: "nav-reports", name: "Reports", href: "/reports", icon: PieChart },
   { group: "Navigation", id: "nav-budgets", name: "Budgets", href: "/budgets", icon: PlusCircle },
@@ -94,10 +95,6 @@ export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpe
     );
   }, [allCommands, search]);
 
-  React.useEffect(() => {
-    setSelectedIndex(0);
-  }, [search]);
-
   const handleSelect = React.useCallback(
     (item: typeof allCommands[number]) => {
       setOpen(false);
@@ -141,7 +138,10 @@ export function CommandPalette({ open: externalOpen, onOpenChange: externalOnOpe
           <Search className="h-4 w-4 text-muted-foreground shrink-0" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setSelectedIndex(0);
+            }}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search page... (e.g. Expenses, Add Income)"
             className="border-none shadow-none focus-visible:ring-0 text-base h-9 bg-transparent p-0"
