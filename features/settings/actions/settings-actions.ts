@@ -111,6 +111,22 @@ export async function savePerson(data: PersonFormValues): Promise<ActionResult> 
   }
 }
 
+export async function createInlinePerson(name: string): Promise<{ success: boolean; person?: { id: string; name: string }; error?: string }> {
+  try {
+    const userId = await getUserId();
+    const trimmed = name.trim();
+    if (!trimmed) return { success: false, error: "Person name cannot be empty." };
+
+    const [inserted] = await db.insert(people).values({ userId, name: trimmed }).returning({ id: people.id, name: people.name });
+    revalidatePath("/settings");
+    revalidatePath("/transactions");
+    return { success: true, person: inserted };
+  } catch (e: unknown) {
+    const err = e as { message?: string };
+    return { success: false, error: err?.message || "Failed to create person." };
+  }
+}
+
 export async function deletePerson(id: string): Promise<ActionResult> {
   try {
     const userId = await getUserId();

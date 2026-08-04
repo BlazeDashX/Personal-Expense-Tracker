@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { MobileNav } from "./mobile-nav";
@@ -8,28 +8,49 @@ import { CommandPalette } from "./command-palette";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+interface LookupItem {
+  id: string;
+  name: string;
+  icon?: string;
+  color?: string;
+}
+
+interface UserInfo {
+  name?: string | null;
+  username?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+interface LookupsData {
+  categories: LookupItem[];
+  paymentMethods: LookupItem[];
+  people?: LookupItem[];
+}
+
 export function DashboardShell({ 
   children, 
   user, 
   lookups 
 }: { 
   children: React.ReactNode;
-  user: any;
-  lookups: any;
+  user: UserInfo;
+  lookups: LookupsData;
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("sidebar_collapsed") === "true";
+    }
+    return false;
+  });
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-
-  // Restore sidebar state from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("sidebar_collapsed");
-    if (saved === "true") setIsCollapsed(true);
-  }, []);
 
   const toggleSidebar = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
-    localStorage.setItem("sidebar_collapsed", String(newState));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("sidebar_collapsed", String(newState));
+    }
   };
 
   return (
@@ -48,13 +69,14 @@ export function DashboardShell({
             user={user}
             categories={lookups.categories}
             paymentMethods={lookups.paymentMethods}
+            people={lookups.people}
             onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
           />
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-y-auto bg-muted/10">
             {children}
           </main>
         </div>
-        <MobileNav categories={lookups.categories} paymentMethods={lookups.paymentMethods} />
+        <MobileNav categories={lookups.categories} paymentMethods={lookups.paymentMethods} people={lookups.people} />
         <CommandPalette
           open={isCommandPaletteOpen}
           onOpenChange={setIsCommandPaletteOpen}

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -6,6 +5,10 @@ import { Plus, Receipt, ArrowDownToLine, ArrowRightLeft, Landmark, Undo2 } from 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ExpenseForm } from "@/features/forms/components/expense-form";
+import { IncomeForm } from "@/features/forms/components/income-form";
+import { TransferForm } from "@/features/forms/components/transfer-form";
+import { LoanForm } from "@/features/forms/components/loan-form";
+import { RefundForm } from "@/features/forms/components/refund-form";
 
 interface LookupItem {
   id: string;
@@ -13,7 +16,15 @@ interface LookupItem {
   icon?: string;
 }
 
-export function GlobalAddMenu({ categories = [], paymentMethods = [] }: { categories?: LookupItem[], paymentMethods?: LookupItem[] }) {
+export function GlobalAddMenu({
+  categories = [],
+  paymentMethods = [],
+  people = [],
+}: {
+  categories?: LookupItem[];
+  paymentMethods?: LookupItem[];
+  people?: LookupItem[];
+}) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"menu" | "expense" | "income" | "transfer" | "loan" | "refund">("menu");
 
@@ -24,16 +35,15 @@ export function GlobalAddMenu({ categories = [], paymentMethods = [] }: { catego
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetTrigger className="inline-flex items-center justify-center whitespace-nowrap h-14 w-14 md:h-10 md:w-10 rounded-full shadow-lg border-4 border-background md:border-none md:shadow-none bg-primary hover:bg-primary/90 text-primary-foreground transition-transform hover:scale-105 active:scale-95">
+      <SheetTrigger className="inline-flex items-center justify-center whitespace-nowrap h-14 w-14 md:h-10 md:w-10 rounded-full shadow-lg border-4 border-background md:border-none md:shadow-none bg-primary hover:bg-primary/90 text-primary-foreground transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <Plus className="h-7 w-7 md:h-5 md:w-5" />
         <span className="sr-only">Add New</span>
       </SheetTrigger>
-      {/* On desktop we make it a centered modal, on mobile a bottom sheet */}
-      <SheetContent side="bottom" className="rounded-t-2xl min-h-[50vh] sm:min-h-0 sm:max-h-[85vh] sm:h-auto sm:max-w-md sm:mx-auto sm:rounded-2xl sm:bottom-auto sm:top-[50%] sm:translate-y-[-50%] pb-safe">
-        <SheetHeader className="mb-6 mt-2">
-           <SheetTitle className="text-center">{view === "menu" ? "Add New" : view.charAt(0).toUpperCase() + view.slice(1)}</SheetTitle>
+      <SheetContent side="bottom" className="rounded-t-2xl min-h-[50vh] sm:min-h-0 sm:max-h-[85vh] sm:h-auto sm:max-w-md sm:mx-auto sm:rounded-2xl sm:bottom-auto sm:top-[50%] sm:translate-y-[-50%] pb-safe overflow-y-auto">
+        <SheetHeader className="mb-4 mt-2">
+          <SheetTitle className="text-center">{view === "menu" ? "Add New" : view.charAt(0).toUpperCase() + view.slice(1)}</SheetTitle>
         </SheetHeader>
-        
+
         {view === "menu" && (
           <div className="grid grid-cols-2 gap-3 px-2">
             <MenuAction icon={<Receipt className="h-6 w-6 text-rose-500" />} label="Expense" onClick={() => setView("expense")} />
@@ -46,16 +56,15 @@ export function GlobalAddMenu({ categories = [], paymentMethods = [] }: { catego
 
         {view !== "menu" && (
           <div className="px-2 pb-6">
-             <Button variant="ghost" className="mb-4 -ml-4" onClick={() => setView("menu")}>
-               ← Back to Menu
-             </Button>
-             
-             {view === "expense" && <ExpenseForm categories={categories} paymentMethods={paymentMethods} onCancel={() => setView("menu")} />}
-             {view !== "expense" && (
-               <div className="text-muted-foreground text-center py-12">
-                 [ Structured {view} form placeholder ]
-               </div>
-             )}
+            <Button variant="ghost" size="sm" className="mb-4 -ml-2 text-xs font-semibold" onClick={() => setView("menu")}>
+              ← Back to Menu
+            </Button>
+
+            {view === "expense" && <ExpenseForm categories={categories} paymentMethods={paymentMethods} onCancel={() => setView("menu")} />}
+            {view === "income" && <IncomeForm paymentMethods={paymentMethods} onCancel={() => setView("menu")} />}
+            {view === "transfer" && <TransferForm paymentMethods={paymentMethods} onCancel={() => setView("menu")} />}
+            {view === "loan" && <LoanForm paymentMethods={paymentMethods} people={people} onCancel={() => setView("menu")} />}
+            {view === "refund" && <RefundForm paymentMethods={paymentMethods} people={people} onCancel={() => setView("menu")} />}
           </div>
         )}
       </SheetContent>
@@ -63,16 +72,15 @@ export function GlobalAddMenu({ categories = [], paymentMethods = [] }: { catego
   );
 }
 
-function MenuAction({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) {
+function MenuAction({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
   return (
-    <button 
+    <button
+      type="button"
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border bg-card hover:bg-muted/50 transition-colors shadow-sm"
+      className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border bg-card hover:bg-muted/60 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="p-3 rounded-full bg-muted">
-        {icon}
-      </div>
-      <span className="font-medium">{label}</span>
+      <div className="p-3 rounded-full bg-muted">{icon}</div>
+      <span className="font-semibold text-sm">{label}</span>
     </button>
   );
 }

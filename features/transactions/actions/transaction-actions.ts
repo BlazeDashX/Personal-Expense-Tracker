@@ -11,6 +11,7 @@ import { toMinorUnits } from "@/lib/finance";
 
 export type ActionResult = {
   success: boolean;
+  id?: string;
   error?: string;
 };
 
@@ -37,12 +38,17 @@ export async function saveTransaction(data: TransactionInput): Promise<ActionRes
     if (parsed.id) {
       await db.update(transactions).set(payload)
         .where(and(eq(transactions.id, parsed.id), eq(transactions.userId, userId)));
+      revalidatePath("/transactions");
+      revalidatePath("/activity");
+      revalidatePath("/dashboard");
+      return { success: true, id: parsed.id };
     } else {
-      await db.insert(transactions).values(payload);
+      const [inserted] = await db.insert(transactions).values(payload).returning({ id: transactions.id });
+      revalidatePath("/transactions");
+      revalidatePath("/activity");
+      revalidatePath("/dashboard");
+      return { success: true, id: inserted.id };
     }
-
-    revalidatePath("/transactions");
-    return { success: true };
   } catch (error: unknown) {
     const err = error as { message?: string };
     return { success: false, error: err?.message || "Failed to save transaction." };

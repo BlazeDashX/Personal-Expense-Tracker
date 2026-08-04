@@ -23,11 +23,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import type { Category, PaymentMethod } from "@/features/settings/components/settings-panels";
+interface LookupItem {
+  id: string;
+  name: string;
+  icon?: string;
+  color?: string;
+}
 
 interface MobileNavProps {
-  categories: Category[];
-  paymentMethods: PaymentMethod[];
+  categories: LookupItem[];
+  paymentMethods: LookupItem[];
+  people?: LookupItem[];
 }
 
 const MORE_NAV_GROUPS = [
@@ -53,7 +59,7 @@ const MORE_NAV_GROUPS = [
   },
 ];
 
-export function MobileNav({ categories, paymentMethods }: MobileNavProps) {
+export function MobileNav({ categories, paymentMethods, people = [] }: MobileNavProps) {
   const pathname = usePathname();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
@@ -90,7 +96,7 @@ export function MobileNav({ categories, paymentMethods }: MobileNavProps) {
 
         {/* 3. Central Add Button */}
         <div className="flex w-full h-full justify-center items-center -translate-y-4">
-          <GlobalAddMenu categories={categories} paymentMethods={paymentMethods} />
+          <GlobalAddMenu categories={categories} paymentMethods={paymentMethods} people={people} />
         </div>
 
         {/* 4. Reports */}
