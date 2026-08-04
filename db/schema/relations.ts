@@ -9,6 +9,7 @@ import { transactions } from "./transactions";
 import { meals } from "./meals";
 import { monthlyBudgets } from "./monthly-budgets";
 import { userPreferences } from "./user-preferences";
+import { quickShortcuts } from "./quick-shortcuts";
 
 // Drizzle ORM Relations definitions (helps with structured queries)
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -23,6 +24,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   transactions: many(transactions),
   meals: many(meals),
   monthlyBudgets: many(monthlyBudgets),
+  quickShortcuts: many(quickShortcuts),
 }));
 
 export const expensesRelations = relations(expenses, ({ one }) => ({
@@ -36,4 +38,10 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   person: one(people, { fields: [transactions.personId], references: [people.id] }),
   paymentMethod: one(paymentMethods, { fields: [transactions.paymentMethodId], references: [paymentMethods.id] }),
   destinationPaymentMethod: one(paymentMethods, { fields: [transactions.destinationPaymentMethodId], references: [paymentMethods.id] }),
+}));
+
+export const quickShortcutsRelations = relations(quickShortcuts, ({ one }) => ({
+  user: one(users, { fields: [quickShortcuts.userId], references: [users.id] }),
+  category: one(categories, { fields: [quickShortcuts.categoryId], references: [categories.id] }),
+  paymentMethod: one(paymentMethods, { fields: [quickShortcuts.paymentMethodId], references: [paymentMethods.id] }),
 }));

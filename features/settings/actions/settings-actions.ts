@@ -4,7 +4,7 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { eq, and } from "drizzle-orm";
-import { categories, paymentMethods, people, monthlyBudgets, userPreferences } from "@/db/schema";
+import { categories, paymentMethods, people, monthlyBudgets, userPreferences, quickShortcuts, expenses } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import {
   categorySchema,
@@ -49,17 +49,45 @@ export async function saveCategory(data: CategoryFormValues): Promise<ActionResu
       await db.insert(categories).values({ ...parsed, userId });
     }
     revalidatePath("/settings");
+    revalidatePath("/expenses");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (e: unknown) {
     return handleDbError(e);
   }
 }
 
-export async function deleteCategory(id: string): Promise<ActionResult> {
+export async function deleteCategory(id: string, fallbackCategoryId?: string): Promise<ActionResult> {
   try {
     const userId = await getUserId();
-    await db.delete(categories).where(and(eq(categories.id, id), eq(categories.userId, userId), eq(categories.isDefault, false)));
+    
+    // Check if category is default
+    const targetCat = await db.query.categories.findFirst({
+      where: and(eq(categories.id, id), eq(categories.userId, userId)),
+    });
+    if (targetCat?.isDefault) {
+      return { success: false, error: "Default categories cannot be deleted." };
+    }
+
+    // Reassign existing expenses if fallback is provided, or get first default category
+    let fallbackId = fallbackCategoryId;
+    if (!fallbackId) {
+      const defaultCat = await db.query.categories.findFirst({
+        where: and(eq(categories.userId, userId), eq(categories.isDefault, true)),
+      });
+      fallbackId = defaultCat?.id;
+    }
+
+    if (fallbackId && fallbackId !== id) {
+      await db.update(expenses)
+        .set({ categoryId: fallbackId })
+        .where(and(eq(expenses.categoryId, id), eq(expenses.userId, userId)));
+    }
+
+    await db.delete(categories).where(and(eq(categories.id, id), eq(categories.userId, userId)));
     revalidatePath("/settings");
+    revalidatePath("/expenses");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (e: unknown) {
     return handleDbError(e);
@@ -77,6 +105,8 @@ export async function savePaymentMethod(data: PaymentMethodFormValues): Promise<
       await db.insert(paymentMethods).values({ ...parsed, userId });
     }
     revalidatePath("/settings");
+    revalidatePath("/expenses");
+    revalidatePath("/transactions");
     return { success: true };
   } catch (e: unknown) {
     return handleDbError(e);
@@ -152,6 +182,7 @@ export async function saveBudget(data: BudgetFormValues): Promise<ActionResult> 
       await db.insert(monthlyBudgets).values({ ...parsed, amount: amountInMinorUnits, userId });
     }
     revalidatePath("/settings");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (e: unknown) {
     return handleDbError(e);
@@ -163,6 +194,83 @@ export async function deleteBudget(id: string): Promise<ActionResult> {
     const userId = await getUserId();
     await db.delete(monthlyBudgets).where(and(eq(monthlyBudgets.id, id), eq(monthlyBudgets.userId, userId)));
     revalidatePath("/settings");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (e: unknown) {
+    return handleDbError(e);
+  }
+}
+
+// --- Quick Shortcuts ---
+export async function saveQuickShortcut(data: {
+  id?: string;
+  title: string;
+  amount: number;
+  type: "EXPENSE" | "TRANSACTION";
+  categoryId?: string;
+  paymentMethodId: string;
+  transactionType?: string;
+  icon: string;
+  color?: string;
+  instantMode?: number;
+}): Promise<ActionResult> {
+  try {
+    const userId = await getUserId();
+    const minorAmount = toMinorUnits(data.amount);
+
+    if (data.id) {
+      await db.update(quickShortcuts).set({
+        title: data.title,
+        amount: minorAmount,
+        type: data.type,
+        categoryId: data.categoryId || null,
+        paymentMethodId: data.paymentMethodId,
+        transactionType: data.transactionType || null,
+        icon: data.icon || "Circle",
+        color: data.color || "#e7a33e",
+        instantMode: data.instantMode ?? 1,
+      }).where(and(eq(quickShortcuts.id, data.id), eq(quickShortcuts.userId, userId)));
+    } else {
+      await db.insert(quickShortcuts).values({
+        userId,
+        title: data.title,
+        amount: minorAmount,
+        type: data.type,
+        categoryId: data.categoryId || null,
+        paymentMethodId: data.paymentMethodId,
+        transactionType: data.transactionType || null,
+        icon: data.icon || "Circle",
+        color: data.color || "#e7a33e",
+        instantMode: data.instantMode ?? 1,
+      });
+    }
+    revalidatePath("/settings");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (e: unknown) {
+    return handleDbError(e);
+  }
+}
+
+export async function toggleShortcutInstantMode(id: string, currentInstantMode: number): Promise<ActionResult> {
+  try {
+    const userId = await getUserId();
+    const newMode = currentInstantMode === 1 ? 0 : 1;
+    await db.update(quickShortcuts).set({ instantMode: newMode }).where(and(eq(quickShortcuts.id, id), eq(quickShortcuts.userId, userId)));
+    revalidatePath("/settings");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (e: unknown) {
+    return handleDbError(e);
+  }
+}
+
+export async function deleteQuickShortcut(id: string): Promise<ActionResult> {
+  try {
+    const userId = await getUserId();
+    await db.delete(quickShortcuts).where(and(eq(quickShortcuts.id, id), eq(quickShortcuts.userId, userId)));
+    revalidatePath("/settings");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (e: unknown) {
     return handleDbError(e);
@@ -174,8 +282,16 @@ export async function savePreferences(data: PreferencesFormValues): Promise<Acti
   try {
     const userId = await getUserId();
     const parsed = preferencesSchema.parse(data);
-    await db.update(userPreferences).set(parsed).where(eq(userPreferences.userId, userId));
+    
+    const existing = await db.query.userPreferences.findFirst({ where: eq(userPreferences.userId, userId) });
+    if (existing) {
+      await db.update(userPreferences).set(parsed).where(eq(userPreferences.userId, userId));
+    } else {
+      await db.insert(userPreferences).values({ ...parsed, userId });
+    }
     revalidatePath("/settings");
+    revalidatePath("/dashboard");
+    revalidatePath("/meals");
     return { success: true };
   } catch (e: unknown) {
     return handleDbError(e);
