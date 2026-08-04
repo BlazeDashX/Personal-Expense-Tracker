@@ -1,6 +1,7 @@
 "use client";
 
 import { format, subDays } from "date-fns";
+import { formatMoney, toMinorUnits } from "@/lib/finance";
 
 export function WeeklyCalendar() {
   const days = Array.from({ length: 7 }).map((_, i) => subDays(new Date(), 6 - i));
@@ -33,8 +34,8 @@ export function WeeklyCalendar() {
             </div>
             
             <div className="mt-3 flex flex-col items-center gap-1 w-full">
-              <span className={`text-xs font-semibold ${isToday ? 'text-primary-foreground/90' : 'text-foreground'}`}>
-                {data.amount > 0 ? `৳${data.amount}` : '-'}
+              <span className={`text-xs font-semibold font-mono tabular-nums ${isToday ? 'text-primary-foreground/90' : 'text-foreground'}`}>
+                {data.amount > 0 ? formatMoney(toMinorUnits(data.amount)) : '-'}
               </span>
               <div className="flex gap-0.5 mt-1">
                 {Array.from({ length: 3 }).map((_, m) => (

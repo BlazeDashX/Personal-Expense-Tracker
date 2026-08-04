@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { submitQuickEntry } from "../actions/quick-entry";
+import { formatMoney } from "@/lib/finance";
 import type { Category, PaymentMethod } from "@/features/settings/components/settings-panels";
 
 interface QuickEntryComposerProps {
@@ -41,7 +42,7 @@ export function QuickEntryComposer({ categories, paymentMethods }: QuickEntryCom
     if (!amount) return null; // Can't submit without amount
 
     // 2. Date (simple check for yesterday)
-    let date = new Date();
+    const date = new Date();
     if (text.toLowerCase().includes("yesterday")) {
       date.setDate(date.getDate() - 1);
     }
@@ -113,14 +114,14 @@ export function QuickEntryComposer({ categories, paymentMethods }: QuickEntryCom
       toast.success(
         <div className="flex flex-col gap-1">
           <span className="font-semibold">Added {parsed.type === "EXPENSE" ? "Expense" : "Income"}</span>
-          <span className="text-sm text-muted-foreground">{parsed.description} • ৳{parsed.amount}</span>
+          <span className="text-sm text-muted-foreground">{parsed.description} • {formatMoney(parsed.amount * 100)}</span>
         </div>
       );
       
       setInput("");
       // Keep focus for rapid entry
       inputRef.current?.focus();
-    } catch (err) {
+    } catch {
       toast.error("Failed to add entry.");
     } finally {
       setIsSubmitting(false);
@@ -135,7 +136,7 @@ export function QuickEntryComposer({ categories, paymentMethods }: QuickEntryCom
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="What did you spend or receive? (e.g. Lunch 250 cash)"
-          className="h-14 pl-4 pr-16 text-lg rounded-2xl shadow-sm border-muted-foreground/20 bg-background"
+          className="h-14 pl-4 pr-16 text-lg rounded-2xl shadow-sm border-muted-foreground/20 bg-background font-mono tabular-nums"
           disabled={isSubmitting}
         />
         <Button
@@ -153,8 +154,8 @@ export function QuickEntryComposer({ categories, paymentMethods }: QuickEntryCom
           <div className="flex gap-2 items-center">
             <span className="font-medium text-foreground">{parsed.description}</span>
             <span>•</span>
-            <span className={parsed.type === "EXPENSE" ? "text-destructive" : "text-emerald-500"}>
-              {parsed.type === "EXPENSE" ? "-" : "+"}৳{parsed.amount}
+            <span className={`font-mono tabular-nums ${parsed.type === "EXPENSE" ? "text-destructive" : "text-emerald-500"}`}>
+              {parsed.type === "EXPENSE" ? "-" : "+"}{formatMoney(parsed.amount * 100)}
             </span>
             <span>•</span>
             <span>{categories.find(c => c.id === parsed.categoryId)?.name || "No Category"}</span>

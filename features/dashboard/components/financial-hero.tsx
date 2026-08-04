@@ -1,6 +1,8 @@
 "use client";
 
 import { ArrowDownToLine, TrendingDown, Target, Sparkles, Sun, Moon, Sunrise, Compass } from "lucide-react";
+import { formatMoney, toMinorUnits } from "@/lib/finance";
+import { Amount } from "@/components/shared/amount";
 
 interface FinancialHeroProps {
   currentBalance: number;
@@ -74,7 +76,7 @@ export function FinancialHero({
             <Sparkles className="h-3.5 w-3.5 text-amber-500" />
             <span>
               {safeDailyAllowance > 0 
-                ? `Safe Today: ৳${safeDailyAllowance.toLocaleString()}/day` 
+                ? `Safe Today: ${formatMoney(toMinorUnits(safeDailyAllowance))}/day` 
                 : "Budget Active"}
             </span>
           </div>
@@ -85,7 +87,7 @@ export function FinancialHero({
       <div className="flex flex-col gap-1 relative z-10">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Available Balance</span>
         <div className="text-4xl md:text-5xl font-black tracking-tight flex items-baseline gap-2">
-          <span>৳{currentBalance.toLocaleString()}</span>
+          <Amount amount={toMinorUnits(currentBalance)} className="text-4xl md:text-5xl font-black tracking-tight" />
         </div>
       </div>
 
@@ -94,12 +96,12 @@ export function FinancialHero({
         <HeroStat 
           icon={<TrendingDown className="h-4 w-4 text-rose-500" />} 
           label="Spent this month" 
-          value={`৳${monthlyExpense.toLocaleString()}`} 
+          value={formatMoney(toMinorUnits(monthlyExpense))} 
         />
         <HeroStat 
           icon={<ArrowDownToLine className="h-4 w-4 text-emerald-500" />} 
           label="Cash in" 
-          value={`৳${cashIn.toLocaleString()}`} 
+          value={formatMoney(toMinorUnits(cashIn))} 
         />
         
         {/* Daily Spending Pace Card */}
@@ -109,8 +111,8 @@ export function FinancialHero({
               <span className="text-muted-foreground font-medium flex items-center gap-1">
                 <Compass className="h-3.5 w-3.5 text-primary" /> Daily Pace
               </span>
-              <span className={`font-bold ${isDailyOver ? "text-rose-500" : "text-emerald-500"}`}>
-                ৳{todayExpense} / ৳{safeDailyAllowance}
+              <span className={`font-bold font-mono tabular-nums ${isDailyOver ? "text-rose-500" : "text-emerald-500"}`}>
+                {formatMoney(toMinorUnits(todayExpense))} / {formatMoney(toMinorUnits(safeDailyAllowance))}
               </span>
             </div>
             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
@@ -119,10 +121,10 @@ export function FinancialHero({
                 style={{ width: `${dailyPercent}%` }} 
               />
             </div>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground font-mono tabular-nums">
               {isDailyOver 
                 ? "⚠️ Exceeded safe daily limit" 
-                : `🟢 ৳${safeDailyAllowance - todayExpense} room left for today`}
+                : `🟢 ${formatMoney(toMinorUnits(safeDailyAllowance - todayExpense))} room left for today`}
             </span>
           </div>
         ) : (
@@ -132,8 +134,8 @@ export function FinancialHero({
                 <span className="text-muted-foreground font-medium flex items-center gap-1">
                   <Target className="h-3.5 w-3.5" /> Budget Remaining
                 </span>
-                <span className={`font-bold ${budgetColor}`}>
-                  ৳{Math.max(0, budgetRemaining).toLocaleString()}
+                <span className={`font-bold font-mono tabular-nums ${budgetColor}`}>
+                  {formatMoney(toMinorUnits(Math.max(0, budgetRemaining)))}
                 </span>
               </div>
               <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
@@ -156,7 +158,7 @@ function HeroStat({ icon, label, value }: { icon: React.ReactNode; label: string
       <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         {icon} {label}
       </div>
-      <div className="font-bold text-foreground text-lg md:text-xl">
+      <div className="font-bold text-foreground text-lg md:text-xl font-mono tabular-nums">
         {value}
       </div>
     </div>

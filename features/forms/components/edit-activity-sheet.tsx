@@ -104,7 +104,7 @@ export function EditActivitySheet({
                   onChange={(e) => setAmount(e.target.value)}
                   required 
                   disabled={isSubmitting}
-                  className="text-2xl font-semibold h-14 pl-8"
+                  className="text-2xl font-semibold h-14 pl-8 font-mono tabular-nums"
                 />
               </div>
             </div>

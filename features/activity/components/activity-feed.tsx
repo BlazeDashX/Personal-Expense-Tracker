@@ -3,10 +3,11 @@
 import React, { useMemo, useState } from "react";
 import { format, isToday, isYesterday, isThisWeek, isThisYear } from "date-fns";
 import * as Icons from "lucide-react";
-import { formatMoney } from "@/lib/finance";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Trash, Copy } from "lucide-react";
 import { EditActivitySheet } from "../../forms/components/edit-activity-sheet";
+import { toMinorUnits } from "@/lib/finance";
+import { Amount } from "@/components/shared/amount";
 import { toast } from "sonner";
 import { deleteActivity } from "../actions/activity";
 import type { UnifiedActivity } from "../queries/get-activity";
@@ -35,7 +36,7 @@ function groupActivity(data: UnifiedActivity[]) {
     else groups["Older"].push(item);
   });
 
-  return Object.entries(groups).filter(([key, items]) => items.length > 0);
+  return Object.entries(groups).filter(([, items]) => items.length > 0);
 }
 
 export function ActivityFeed({ 
@@ -106,10 +107,10 @@ export function ActivityFeed({
                   </div>
                   <div className="shrink-0 flex items-center ml-4 gap-3">
                     <div className="text-right">
-                      <div className={`font-medium ${item.isPositive ? 'text-emerald-600' : item.isNeutral ? 'text-muted-foreground' : 'text-foreground'}`}>
-                        {item.isPositive ? '+' : item.isNeutral ? '' : '-'}
-                        {formatMoney(item.amount * 100)}
-                      </div>
+                      <Amount
+                        amount={toMinorUnits(item.amount)}
+                        sign={item.isPositive ? "positive" : item.isNeutral ? "neutral" : "negative"}
+                      />
                       <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">
                         {item.paymentMethod.name}
                       </p>

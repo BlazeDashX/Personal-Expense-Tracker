@@ -78,7 +78,7 @@ function QuickWidgetItem({ shortcut }: { shortcut: Shortcut }) {
         </div>
       );
       setIsOpen(false);
-    } catch (e) {
+    } catch {
       toast.error("Failed to add " + shortcut.title);
     } finally {
       setIsSubmitting(false);
@@ -95,7 +95,7 @@ function QuickWidgetItem({ shortcut }: { shortcut: Shortcut }) {
           <div className="p-2.5 bg-muted rounded-full">
             <IconComp className="h-5 w-5 text-foreground" />
           </div>
-          <span className="text-xs font-semibold px-2 py-1 bg-muted rounded-full text-muted-foreground">
+          <span className="text-xs font-semibold font-mono tabular-nums px-2 py-1 bg-muted rounded-full text-muted-foreground">
             {formatMoney(shortcut.amount)}
           </span>
         </div>
@@ -114,7 +114,7 @@ function QuickWidgetItem({ shortcut }: { shortcut: Shortcut }) {
                autoFocus
                value={amountStr} 
                onChange={(e) => setAmountStr(e.target.value)} 
-               className="pl-7 h-10 font-semibold"
+               className="pl-7 h-10 font-semibold font-mono tabular-nums"
                disabled={isSubmitting}
              />
            </div>

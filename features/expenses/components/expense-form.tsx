@@ -147,7 +147,7 @@ export function ExpenseForm({ initialData, categories, paymentMethods, onSuccess
                       placeholder="0.00" 
                       type="number" 
                       step="0.01" 
-                      className="pl-7" 
+                      className="pl-7 font-mono tabular-nums" 
                       {...field} 
                       onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
                       autoFocus

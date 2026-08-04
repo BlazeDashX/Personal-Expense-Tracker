@@ -24,10 +24,10 @@ describe("Financial Calculations", () => {
 
   it("formats money correctly using standard locale", () => {
     // 10050 minor units = 100.50 BDT
-    const formatted = formatMoney(10050, "BDT", "en-BD");
-    
-    // Note: Different Node environments format the currency symbol slightly differently 
-    // (e.g. BDT vs ৳). We test that the numeric portion is correct.
-    expect(formatted).toContain("100.50");
+    expect(formatMoney(10050)).toBe("৳100.50");
+    // Whole amounts do not render trailing .00
+    expect(formatMoney(762200)).toBe("৳7,622");
+    // Fractional amounts render 2 decimals
+    expect(formatMoney(4403)).toBe("৳44.03");
   });
 });

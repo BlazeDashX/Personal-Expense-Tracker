@@ -15,8 +15,8 @@ export function ExpenseForm({
   paymentMethods = []
 }: { 
   onCancel: () => void;
-  categories?: any[];
-  paymentMethods?: any[];
+  categories?: Array<{ id: string; name: string; icon?: string }>;
+  paymentMethods?: Array<{ id: string; name: string; icon?: string }>;
 }) {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -46,12 +46,12 @@ export function ExpenseForm({
             <span className="font-semibold text-sm block">Saved Expense</span>
             <span className="text-xs text-muted-foreground">{description}</span>
           </div>
-          <span className="font-medium text-destructive">{formatMoney(parsedAmount * 100)}</span>
+          <span className="font-medium text-destructive font-mono tabular-nums">{formatMoney(parsedAmount * 100)}</span>
         </div>
       );
       
       onCancel(); // Close form
-    } catch (err) {
+    } catch {
       toast.error("Failed to save expense");
     } finally {
       setIsSubmitting(false);
@@ -74,7 +74,7 @@ export function ExpenseForm({
             autoFocus 
             required 
             disabled={isSubmitting}
-            className="text-2xl font-semibold h-14 pl-8"
+            className="text-2xl font-semibold h-14 pl-8 font-mono tabular-nums"
           />
         </div>
       </div>
@@ -94,7 +94,7 @@ export function ExpenseForm({
       <div className="grid grid-cols-2 gap-4 mt-2">
         <div className="flex flex-col gap-2">
            <Label>Category</Label>
-           <Select value={categoryId} onValueChange={setCategoryId} disabled={isSubmitting} required>
+           <Select value={categoryId} onValueChange={(val) => setCategoryId(val || "")} disabled={isSubmitting} required>
              <SelectTrigger className="h-12 bg-muted/50">
                <SelectValue placeholder="Select Category" />
              </SelectTrigger>
@@ -111,7 +111,7 @@ export function ExpenseForm({
         </div>
         <div className="flex flex-col gap-2">
            <Label>Payment Method</Label>
-           <Select value={paymentMethodId} onValueChange={setPaymentMethodId} disabled={isSubmitting} required>
+           <Select value={paymentMethodId} onValueChange={(val) => setPaymentMethodId(val || "")} disabled={isSubmitting} required>
              <SelectTrigger className="h-12 bg-muted/50">
                <SelectValue placeholder="Select Method" />
              </SelectTrigger>

@@ -5,7 +5,7 @@ import { Coffee, Utensils, Car, ShoppingBag, Cookie, Zap, Undo2, Loader2 } from 
 import { submitQuickEntry } from "../actions/quick-entry";
 import { deleteActivity } from "@/features/activity/actions/activity";
 import { toast } from "sonner";
-import { formatMoney } from "@/lib/finance";
+import { formatMoney, toMinorUnits } from "@/lib/finance";
 
 interface DailyQuickChipsProps {
   categories: Array<{ id: string; name: string }>;
@@ -116,8 +116,8 @@ export function DailyQuickChips({ categories, paymentMethods }: DailyQuickChipsP
                 <Icon className="h-4 w-4 text-primary shrink-0" />
               )}
               <span>{chip.label}</span>
-              <span className="text-xs font-bold text-muted-foreground group-hover:text-primary">
-                ৳{chip.amount}
+              <span className="text-xs font-bold font-mono tabular-nums text-muted-foreground group-hover:text-primary">
+                {formatMoney(toMinorUnits(chip.amount))}
               </span>
             </button>
           );
