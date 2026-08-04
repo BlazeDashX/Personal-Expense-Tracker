@@ -80,6 +80,9 @@ export function DashboardShell({
         <CommandPalette
           open={isCommandPaletteOpen}
           onOpenChange={setIsCommandPaletteOpen}
+          categories={lookups.categories}
+          paymentMethods={lookups.paymentMethods}
+          people={lookups.people}
         />
       </div>
     </TooltipProvider>
